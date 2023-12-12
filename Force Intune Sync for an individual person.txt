@@ -1,0 +1,23 @@
+if (!(Get-Module -ListAvailable -Name msgraph)) {
+    Write-Output "msgraph module not found. Installing..."
+    Install-Module -Name msgraph
+} else {
+    Write-Output "msgraph already installed"
+}
+$emailaddress = read-host "Please enter the name of the e-mail address of the person associated with the device you are trying to sync"
+
+connect-msgraph
+
+write-host "Last sync time" -BackgroundColor Cyan
+
+Get-IntuneManageddevice -Filter "userPrincipalName eq '$emailaddress'" | fl devicename, Lastsyncdatetime
+
+write-host "now syncing the above devices" -BackgroundColor Cyan
+
+Get-IntuneManageddevice -Filter "userPrincipalName eq '$emailaddress'" | Invoke-IntuneManagedDeviceSyncDevice
+
+write-host "Devices have been sync'd. New times are below. Keep in mind, these may not update in real time." -BackgroundColor Cyan
+
+Get-IntuneManageddevice -Filter "userPrincipalName eq '$emailaddress'" | fl devicename, Lastsyncdatetime
+
+write-host "all done" -BackgroundColor Cyan

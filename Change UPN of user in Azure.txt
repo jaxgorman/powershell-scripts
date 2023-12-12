@@ -1,0 +1,22 @@
+Connect-MsolService
+Connect-ExchangeOnline
+$oldupn = read-host "enter their CURRENT UPN"
+$newupn = read-host "enter their NEW UPN"
+Try {
+    Get-User -Identity $oldupn
+}
+catch{
+    Write-Host "User doesn't exist bucko!"
+    Pause
+    break
+}
+set-msoluserprincipalname -userprincipalname "$oldupn" -NewUserPrincipalName "$newupn"
+if($?)
+{
+    Write-Output "$oldupn is now $newupn"
+}
+else
+{
+    Write-Output "$oldupn is NOT $newupn. PLEASE DOUBLE CHECK"
+}
+write-host "All done! Bye!"

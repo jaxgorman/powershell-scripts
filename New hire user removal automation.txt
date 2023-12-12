@@ -1,0 +1,36 @@
+write-host "Welcome. Initalizing Transcript." -BackgroundColor DarkYellow
+$dateT = Get-Date -Format "MM/dd/yyyy" ### eg 06/06/2016
+$transcriptDateT = Get-Date -Format "hmm tt" ### eg 26 for the 26th day of the month
+$currentYearT = Get-Date -Format "yyyy" ### eg 2024 for year
+$currentMonthT = Get-Date -Format "MM" ### eg ""12"" for december
+$currentDayOfMonthT = Get-Date -Format "dd" ### eg 01 for the first of the month
+Start-Transcript "path.txt" -NoClobber ### that's where to find the transcript
+Write-host "Transcription initalized. Begin Transcription." -BackgroundColor darkcyan
+
+Import-Module ActiveDirectory
+
+$groupName = group name goes here
+$group = Get-ADGroup $groupName
+$groupMembers = Get-ADGroupMember -Identity $group | Where-Object {$_.objectClass -eq "user"}
+
+foreach ($member in $groupMembers) {
+    $user = Get-ADUser -Identity $member -Properties extensionAttribute5
+    $user2 = get-aduser -identity $member -properties * | select name
+    $extensionAttribute5 = $user.extensionAttribute5
+    $ea5formatted = [datetime]::ParseExact($extensionAttribute5, "yyyy-MM-dd-HH:mm", $null)
+    $formatteddate = $ea5formatted.ToString("MM/dd/yyyy")
+    $date = [datetime]::ParseExact($formatteddate, "MM/dd/yyyy", $null)
+    $now = Get-Date
+    $diff = New-TimeSpan -Start $date -End $now
+
+    if ($diff.Days -gt 5) {
+
+            write-host "For $user2.name, it has been more than 5 days since hire date. Deleting the user out of the New Hire AD Group."
+            Remove-ADGroupMember -Identity $group -Members $user -Confirm:$false
+            write-host "Removed $user2.name from the new hire group"
+            } else {
+            write-host "For $user2.name, it has NOT been more than 5 days since hire date. They will remain in the New Hire AD Group."
+        }
+    }
+
+    Stop-Transcript

@@ -1,0 +1,7 @@
+$name = wmic bios get serialnumber
+New-Item -Type Directory -Path "C:\temp\autopilot"
+Set-Location -Path "C:\temp\autopilot"
+$env:Path += ";C:\Program Files\WindowsPowerShell\Scripts"
+Set-ExecutionPolicy -Scope Process -ExecutionPolicy unrestricted
+Install-Script -Name Get-WindowsAutopilotInfo
+Get-WindowsAutopilotInfo -OutputFile c:\temp\autopilot\$name.csv

@@ -1,0 +1,18 @@
+$date = get-date
+Import-Module Microsoft.Graph.Groups
+Connect-MgGraph
+$string = Read-Host "Enter the phrase you want to search for in dynamic group rules"
+$groups = @()
+$groupPage = Get-MgGroup -Filter "groupTypes/any(c:c eq 'DynamicMembership')" -Top 999
+
+do {
+    $groups += $groupPage | Select-Object DisplayName, MembershipRule
+    if ($null -ne $groupPage.'@odata.nextLink') {
+        $groupPage = Get-MgGroup -Filter "groupTypes/any(c:c eq 'DynamicMembership')" -Top 999 -SkipToken $groupPage.'@odata.nextLink'.Split('=')[-1]
+    } else {
+        $groupPage = $null
+    }
+} while ($null -ne $groupPage)
+
+$filteredGroups = $groups | Where-Object { $_.MembershipRule -like "*$string*" }
+$filteredGroups | Export-Csv -Path "C:\temp\exportedgroups11212023.csv" -NoTypeInformation

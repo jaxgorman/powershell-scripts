@@ -1,0 +1,7 @@
+$random = Get-Random 
+powercfg /batteryreport /output "c:\temp\$random.html"
+Write-host "Currently copying report to destination"
+Copy-Item "c:\temp\$random.html" -destination "destination"
+write-host "Copying finished, file is opening" 
+invoke-item "c:\temp\$random.html"
+pause

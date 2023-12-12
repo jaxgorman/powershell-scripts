@@ -1,0 +1,21 @@
+$date = Get-Date -Format "MM/dd/yyyy"
+$transcriptDate = Get-Date -Format "hmm tt"
+$currentYear = Get-Date -Format "yyyy"
+$currentMonth = Get-Date -Format "MM"
+$currentDayOfMonth = Get-Date -Format "dd"
+start-transcript "\\path goes here $transcriptDate.txt" -NoClobber
+$identity = read-host "enter samaccountname like this"
+$remoteaddress = "$identity@domain.mail.onmicrosoft.com"
+$identity
+$remoteaddress
+write-host "use your DA account to login! Make sure you enter it like (srr\jjgorman). If you are not an exchange admin, this will not work" -BackgroundColor Magenta
+$Session = New-PSSession -ConfigurationName Microsoft.Exchange -ConnectionUri http://nc1exchange01/PowerShell/ -Authentication Kerberos -Credential $UserCredential
+Import-PSSession $Session -DisableNameChecking
+write-host "enabling remote mailbox" -BackgroundColor DarkYellow
+Set-remotemailbox -identity "$identity@domain.com" -remoteroutingaddress "$remoteaddress"
+write-host "done, opening up a link to exchange server so you can double check" -BackgroundColor DarkYellow
+start-process "https://domain"
+Remove-PSSession $Session
+Stop-Transcript
+Write-Host "renaming log file"
+Rename-Item -Path "\\path$transcriptDate.txt" -NewName "$identity.txt"

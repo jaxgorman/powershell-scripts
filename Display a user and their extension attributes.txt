@@ -1,0 +1,10 @@
+Import-Module ActiveDirectory
+
+while ($true) {
+    $samaccountname = Read-Host "Please enter a samaccountname (or 'q/Q' to quit)"
+    if ($samaccountname -eq 'q') {
+        break
+    }
+    $user = Get-ADUser -Identity $samaccountname -Properties *
+    $user.PSObject.Properties | Where-Object { $_.Name -like "extensionAttribute*" -or $_.Name -eq "Name" -or $_.Name -eq "mail" } |Format-Table Name, Value
+}

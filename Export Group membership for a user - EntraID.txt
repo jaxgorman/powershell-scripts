@@ -1,0 +1,25 @@
+# Check if the Microsoft Graph module is installed
+if (!(Get-Module -ListAvailable -Name "microsoft.graph")) {
+    # If not installed, install the Microsoft Graph module
+    Install-Module microsoft.graph -Scope allusers
+} else {
+    # If installed, print to the console
+    Write-Host "Microsoft Graph is installed"
+}
+
+connect-mggraph
+$email = Read-Host -Prompt 'Enter the email address of the user you would like to see the ENTRAID groups for'
+$user = Get-MGUser -UserId $email
+$user.id
+
+$groups = Get-MgUserMemberOf -UserId $user.id | Select-Object *
+$groupdata =
+$groups | ForEach-Object {
+$GroupIDs = $_.id
+$otherproperties = $_.AdditionalProperties
+$finalreport = "" | Select-Object -Property "Group Name","Group ID"
+$finalreport.'Group Name' = $otherproperties.displayName
+$finalreport.'Group ID' = $GroupIDs
+$finalreport }
+$groupdata | export-csv -Path c:\temp\$email'groups'.csv
+invoke-item -path c:\temp\$email'groups'.csv
